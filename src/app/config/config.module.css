@@ -1,0 +1,43 @@
+.contenedor{
+    width: 80%;
+    background-color: rgb(156, 156, 156);
+    margin: 0 auto;
+    padding: 50px;
+    height: 60vh;
+    margin-top: 30px;
+    position: relative;
+}
+.contenedor h2{
+    width: 100%;
+    margin: 20px 0px;
+}
+.input{
+    width: 10%;
+    border-radius: 20px;
+    padding: 5px 0px;
+    text-align: center;
+}
+.inputXL{
+    border-radius: 20px;
+    padding: 5px 0px;
+    text-align: center;
+}
+
+.contenedorInputs{
+    display: flex;
+    align-items: center;
+}
+.closeButton{
+
+    position: absolute;
+    top: 10px;
+    right: 10px
+}
+.button{
+    padding: 10px;
+    cursor: pointer;
+}
+.contenedorBotones{
+    width: 100%;
+    margin-top: 15%;
+}

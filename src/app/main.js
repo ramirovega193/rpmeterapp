@@ -1,8 +1,9 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 
+let win
 function createWindow() {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
     minWidth:700,
@@ -15,6 +16,22 @@ function createWindow() {
 
   win.loadURL('http://localhost:3000');
 }
+
+function createConfigWindow(){
+
+
+  win.loadURL('http://localhost:3000/config');
+
+
+}
+function createActWindow(){
+
+
+  win.loadURL('http://localhost:3000/activar');
+
+
+}
+
 
 const menu = Menu.buildFromTemplate([
   {
@@ -49,13 +66,13 @@ const menu = Menu.buildFromTemplate([
 
     label: 'Configuración',
     click(){
-      
+      createConfigWindow()
     }
   },
   {
     label: 'Activar cuenta',
     click(){
-      
+      createActWindow()
     }
   }
 ]);
