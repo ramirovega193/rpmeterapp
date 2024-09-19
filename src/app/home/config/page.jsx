@@ -1,5 +1,5 @@
 "use client"
-import Boton from '../components/boton/boton'
+import Boton from '../../components/boton/boton'
 import style from './config.module.css'
 import Link from "next/link";
 import { useState } from 'react';

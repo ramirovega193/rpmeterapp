@@ -1,8 +1,8 @@
-import Boton from '../components/boton/boton'
+import Boton from '../../components/boton/boton'
 import style from './activar.module.css'
 import Link from "next/link";
 import Image from 'next/image'
-import { InputBottom } from '../components/input/input';
+import { InputBottom } from '../../components/input/input';
 
 export default function activarPage(){
 

@@ -8,29 +8,6 @@ import Boton from '../components/boton/boton'
 
 export default function Inicio(){
 
-    
-    const [defaultValues,setDefault] = useState({
-
-        "pinionPrimaria": "21",
-        "coronaPrimaria": "70",
-        "pinionCambio": "13",
-        "coronaCambio": "36",
-        "pinionEje": "18",
-        "coronaEje":"25"
-    }) 
-
-    const [PPActual, setPP] = useState(defaultValues.pinionPrimaria)
-
-
-
-
-
-
-
-
-
-
-
     const [rpm, setRpm] = useState(7000)
     const [maxRpm, setMaxRpm] = useState(10000)
     const [grabando, setGrab] = useState(false)

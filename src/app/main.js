@@ -8,10 +8,7 @@ function createWindow() {
     height: 600,
     minWidth:700,
     minHeight:500,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: true,
-    },
+    icon: '/logos/logoWebp.webp'
   });
 
   win.loadURL('http://localhost:3000');
@@ -20,14 +17,14 @@ function createWindow() {
 function createConfigWindow(){
 
 
-  win.loadURL('http://localhost:3000/config');
+  win.loadURL('http://localhost:3000/home/config');
 
 
 }
 function createActWindow(){
 
 
-  win.loadURL('http://localhost:3000/activar');
+  win.loadURL('http://localhost:3000/home/activar');
 
 
 }
