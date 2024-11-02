@@ -1,8 +1,8 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import style from './home.module.css'
 import ReactSpeedometer from 'react-d3-speedometer'
-import { InputSidebar, InputBottom, InputUser, InputDate } from '../components/input/input'
+import { InputSidebar, InputBottom, InputDate } from '../components/input/input'
 import Image from 'next/image'
 import Boton from '../components/boton/boton'
 
@@ -13,6 +13,10 @@ export default function Inicio(){
     const [grabando, setGrab] = useState(false)
     var today= new Date()
     const formattedDate = today.toISOString().split('T')[0];
+
+    const openNewWindow = () => {
+        window.electron.openNewWindow(); // Usar la función expuesta en preload.js
+      };
 
     const pararGrabacion = () =>{
         
@@ -25,6 +29,29 @@ export default function Inicio(){
         setGrab(!grabando)
         //...futuro codigo
     }
+
+    const [messages, setMessages] = useState([]);
+
+    useEffect(() => {
+        console.log("Iniciando el streaming...");
+
+        const eventSource = new EventSource("/api/proxy");
+
+        eventSource.onmessage = (event) => {
+            setMessages((prevMessages) => [...prevMessages, event.data]);
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("Error en el streaming:", error);
+            eventSource.close();
+        };
+
+        return () => {
+            eventSource.close();
+            console.log("Streaming cerrado. Mensajes recibidos:");
+            console.log(messages); // Muestra todos los datos transmitidos en la consola
+        };
+    }, [messages]);
 
     return(
         <div className={style.homeContenedor}>
@@ -56,7 +83,7 @@ export default function Inicio(){
 
                 <div className={style.botonesSidebar}>
                     <Boton contenido="Generar tabla" />
-                    <Boton contenido="Generar Gragfico" />
+                    <Boton contenido="Generar Grafico" funcion={openNewWindow}/>
                     {grabando ? <Boton funcion={pararGrabacion} contenido="Detener grabacion"/> : <Boton funcion={iniciarGrabacion} contenido="Iniciar grabación"/>}
    
                 </div>
@@ -72,9 +99,6 @@ export default function Inicio(){
                     </div>
                     <div className={style.input2}>
                         <InputDate date={formattedDate} id="input4"/>
-                    </div>
-                    <div className={style.input3}>
-                        <InputUser type="text" user="Example Username" id="input4"/>
                     </div>
                 </div>  
             </div>

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const path = require('path');
 
 let win
@@ -6,13 +6,45 @@ function createWindow() {
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    minWidth:700,
-    minHeight:500,
-    icon: '/logos/logoWebp.webp'
+    minWidth: 700,
+    minHeight: 500,
+    icon: path.join(__dirname, '/logos/logoWebp.webp'),
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'), // Asegúrate de tener este archivo
+      contextIsolation: true, // Para mayor seguridad
+      enableRemoteModule: false, // Mantén deshabilitado el módulo remoto si no lo necesitas
+      nodeIntegration: false, // Mantén deshabilitada la integración de Node.js en el proceso de renderizado
+    },
   });
 
   win.loadURL('http://localhost:3000');
+
+  ipcMain.on('open-new-window', () => {
+    createNewWindow();
+  });
 }
+
+function createNewWindow() {
+  const newWin = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      contextIsolation: true,
+      enableRemoteModule: false,
+    },
+    /*frame: false */
+  });
+
+  newWin.loadURL('http://localhost:3000/home/grafico');
+}
+
+
+
+
+
+
+
+
 
 function createConfigWindow(){
 
@@ -28,7 +60,6 @@ function createActWindow(){
 
 
 }
-
 
 const menu = Menu.buildFromTemplate([
   {
@@ -84,3 +115,5 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+
+
