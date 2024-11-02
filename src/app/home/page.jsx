@@ -13,6 +13,73 @@ export default function Inicio(){
     const [grabando, setGrab] = useState(false)
     var today= new Date()
     const formattedDate = today.toISOString().split('T')[0];
+    // Almanecena los responses a medida que son transmitidos en tiempo real
+    const [dataStreaming, setDataStreaming] = useState([])
+
+    // Obtener datos del streaming
+    useEffect(function() {
+        const fetchData = async () => {
+            // La response es en streaming. Por lo cual usamos un readableStream para leer los responses
+            const response = await fetch('http://127.0.0.1:8000/iniciar-grabacion');
+            const reader = response.body.getReader();
+            // Con TextDecoder transformamos fragmentos de bits en texto
+            const decoder = new TextDecoder('utf-8');
+
+            // CompletedData almacena todos los responses hasta el momento.
+            let completedData = [];
+            // PartialData almacena el response actual
+            let partialData = '';
+
+            // Manejo de las responses con reader en bucle
+            while (true) {
+                // value es la response, si ya no manda respuestas recibimos done
+                const { value, done } = await reader.read();
+
+                // Done = true: Finaliza el bucle
+                if (done) break;
+
+                // Decodificar el fragmento recibido
+                partialData += decoder.decode(value, { stream: true });
+
+                // Separar por líneas (cada línea debería ser un objeto JSON independiente)
+                const lines = partialData.split('\n');
+
+                // Procesar todas las líneas menos la última (ya que podría estar incompleta)
+                for (let i = 0; i < lines.length - 1; i++) {
+                    try {
+                        // Si no la puede convertir en json, está incompleta.
+                        const parsed = JSON.parse(lines[i]);
+                        // En caso de que esté completa la pushea en completedData
+                        completedData.push(parsed);
+                    } catch (error) {
+                        console.error("Error al parsear JSON:", error);
+                    }
+                }
+
+                // Mantener la última línea en `partialData` (puede estar incompleta)
+                partialData = lines[lines.length - 1];
+
+                // Actualizar el estado con los datos completados
+                setDataStreaming([...completedData]);
+            }
+
+            // Agregar la última línea (si es un JSON válido)
+            if (partialData) {
+                try {
+                    const parsed = JSON.parse(partialData);
+                    completedData.push(parsed);
+                    setDataStreaming([...completedData]);
+                } catch (error) {
+                    console.error("Error al parsear JSON en la última línea:", error);
+                }
+            }
+        }
+        
+        if (grabando) {
+            fetchData();
+        }
+
+    }, [grabando])
 
     const openNewWindow = () => {
         window.electron.openNewWindow(); // Usar la función expuesta en preload.js
@@ -28,6 +95,12 @@ export default function Inicio(){
 
         setGrab(!grabando)
         //...futuro codigo
+
+        // Nota de Alejo para (Vega_PHP):
+        /*
+            En teoría debe funcionar. Los datos se guardan en el state dataStreaming.
+            Y el estado se actualiza cada vez que hay una nueva lectura.
+        */
     }
 
     const [messages, setMessages] = useState([]);
