@@ -8,8 +8,8 @@ import Boton from '../components/boton/boton'
 
 export default function Inicio(){
 
-    const [rpm, setRpm] = useState(7000)
-    const [maxRpm, setMaxRpm] = useState(10000)
+    const [rpm, setRpm] = useState(0)
+    const [maxRpm, setMaxRpm] = useState(1000)
     const [grabando, setGrab] = useState(false)
     var today= new Date()
     const formattedDate = today.toISOString().split('T')[0];
@@ -19,8 +19,28 @@ export default function Inicio(){
     // Obtener datos del streaming
     useEffect(function() {
         const fetchData = async () => {
+
+            const datosIngresados = {
+                "peso": 1,
+                "radio": 12,
+                "pinion_primario": 1,
+                "pinion_eje": 1,
+                "pinion_cambio": 1,
+                "corona_primaria": 1,
+                "corona_eje": 1,
+                "corona_cambio": 1,
+                "presion_atmosferica": 1013,
+                "temperatura": 20
+              };
+
             // La response es en streaming. Por lo cual usamos un readableStream para leer los responses
-            const response = await fetch('http://127.0.0.1:8000/iniciar-grabacion');
+            const response = await fetch("http://127.0.0.1:8000/iniciar-grabacion", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(datosIngresados),
+            });
             const reader = response.body.getReader();
             // Con TextDecoder transformamos fragmentos de bits en texto
             const decoder = new TextDecoder('utf-8');
@@ -33,16 +53,16 @@ export default function Inicio(){
             // Manejo de las responses con reader en bucle
             while (true) {
                 // value es la response, si ya no manda respuestas recibimos done
-                const { value, done } = await reader.read();
+                const { value, done } = await reader.read();    
 
                 // Done = true: Finaliza el bucle
                 if (done) break;
-
+    
                 // Decodificar el fragmento recibido
                 partialData += decoder.decode(value, { stream: true });
-
+      
                 // Separar por líneas (cada línea debería ser un objeto JSON independiente)
-                const lines = partialData.split('\n');
+                const lines = partialData.split("\n");
 
                 // Procesar todas las líneas menos la última (ya que podría estar incompleta)
                 for (let i = 0; i < lines.length - 1; i++) {
@@ -61,6 +81,7 @@ export default function Inicio(){
 
                 // Actualizar el estado con los datos completados
                 setDataStreaming([...completedData]);
+                
             }
 
             // Agregar la última línea (si es un JSON válido)
@@ -72,7 +93,9 @@ export default function Inicio(){
                 } catch (error) {
                     console.error("Error al parsear JSON en la última línea:", error);
                 }
+          
             }
+                
         }
         
         if (grabando) {
@@ -81,9 +104,28 @@ export default function Inicio(){
 
     }, [grabando])
 
+    //verificando datos...
+    useEffect(()=>{
+
+        if(dataStreaming.length > 0)
+         setRpm(dataStreaming[dataStreaming.length-1].rpm)
+
+
+    },[dataStreaming])
+
+
+
+
+
+
+
     const openNewWindow = () => {
-        window.electron.openNewWindow(); // Usar la función expuesta en preload.js
+        window.electron.openNewWindow(); 
       };
+
+    const openTabla = () =>{
+        window.electron.openTabla();
+    }
 
     const pararGrabacion = () =>{
         
@@ -103,28 +145,6 @@ export default function Inicio(){
         */
     }
 
-    const [messages, setMessages] = useState([]);
-
-    useEffect(() => {
-        console.log("Iniciando el streaming...");
-
-        const eventSource = new EventSource("/api/proxy");
-
-        eventSource.onmessage = (event) => {
-            setMessages((prevMessages) => [...prevMessages, event.data]);
-        };
-
-        eventSource.onerror = (error) => {
-            console.error("Error en el streaming:", error);
-            eventSource.close();
-        };
-
-        return () => {
-            eventSource.close();
-            console.log("Streaming cerrado. Mensajes recibidos:");
-            console.log(messages); // Muestra todos los datos transmitidos en la consola
-        };
-    }, [messages]);
 
     return(
         <div className={style.homeContenedor}>
@@ -155,7 +175,7 @@ export default function Inicio(){
                 </div>
 
                 <div className={style.botonesSidebar}>
-                    <Boton contenido="Generar tabla" />
+                    <Boton contenido="Generar tabla" funcion={openTabla} />
                     <Boton contenido="Generar Grafico" funcion={openNewWindow}/>
                     {grabando ? <Boton funcion={pararGrabacion} contenido="Detener grabacion"/> : <Boton funcion={iniciarGrabacion} contenido="Iniciar grabación"/>}
    

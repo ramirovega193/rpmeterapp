@@ -1,0 +1,7 @@
+.tablas{
+    width: 90vw;
+    background-color: white;
+    height: 500px;
+    margin: 10px auto;
+    overflow-y: scroll;
+}

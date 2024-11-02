@@ -38,8 +38,23 @@ function createNewWindow() {
   newWin.loadURL('http://localhost:3000/home/grafico');
 }
 
+function createNewWindowTabla() {
+  const newWin = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      contextIsolation: true,
+      enableRemoteModule: false,
+    },
+    /*frame: false */
+  });
 
+  newWin.loadURL('http://localhost:3000/home/tabla');
+}
 
+ipcMain.on('tabla', () => {
+  createNewWindowTabla();
+});
 
 
 

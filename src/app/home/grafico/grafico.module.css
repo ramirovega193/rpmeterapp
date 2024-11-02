@@ -1,3 +1,6 @@
 .contenedorGrafico{
     background-color: white;
+    width: 100vw;
+    justify-content: center;
+    display: flex;
 }
